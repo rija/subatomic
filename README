@@ -1,0 +1,8 @@
+
+
+== TODO ==
+
+ * test with local pubsubhubbub hub
+ * use YAML to read from config files
+ * Move Wordpress related stuff as an adapter
+ * Deploy on my hosting server
