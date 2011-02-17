@@ -7,8 +7,36 @@ require 'em-http'
 class Sync < Sinatra::Base
   register Sinatra::Async
   
+  VERIFY_TOKEN = "4937!thjg"
+  
   aget '/callback' do
+    
+    #check VERIFY_TOKEN, return bad request if no match
+    
     body params['hub.challenge']
+  end
+  
+  
+  aget '/subscribe' do
+    
+    origin_feed = "http://pommetab.com/feeds/atom/"
+    callback = "http://localhost:3000/callback"
+    
+    EM.run {
+      http = EM::HttpRequest.new('localhost:8080').post(:body => {'hub.callback' => callback, 
+                                      'hub.topic' => origin_feed, 
+                                      'hub.verify' => 'sync',
+                                      'hub.mode' => 'subscribe',                                
+                                      'hub.verify_token' => VERIFY_TOKEN})
+                                      
+      http.errback { p 'Error while trying to subscribe'; EM.stop }
+      http.callback {
+        p http.response_header.status
+        p http.response_header
+        p http.response
+
+      }
+    }
   end
   
   apost '/callback' do
@@ -23,12 +51,12 @@ class Sync < Sinatra::Base
    newest_entry.id =nil
    # async publish to blog api
 
-     EventMachine.run {
-           http = EventMachine::HttpRequest.new('****/wp-app.php/posts').post(
+     EM.run {
+           http = EM::HttpRequest.new('****/wp-app.php/posts').post(
            :head => {'authorization' => ['****', '****'],"Content-Type" => "application/atom+xml"}, 
            :body => newest_entry.to_xml)
 
-           http.errback { p 'Uh oh'; EM.stop }
+           http.errback { p 'Error while pushing atom'; EM.stop }
            http.callback {
              p http.response_header.status
              p http.response_header
