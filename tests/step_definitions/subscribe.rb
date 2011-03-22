@@ -18,5 +18,11 @@ end
 
 
 When /^subscribe is called and the connection hangs$/ do
-  pending # express the regexp above with the code you wish you had
+  EM::HttpRequest.any_instance.expects(:post).raises(Timeout::Error)
+  visit('http://localhost:3000/subscribe')
+end
+
+
+Then /^subatomic returns Server Error response header$/ do
+  page.driver.status_code.should eql(500)
 end

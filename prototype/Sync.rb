@@ -28,24 +28,23 @@ class Sync < Sinatra::Base
     origin_feed = @@config["source"]["feed"]
     callback = @@config["hub"]["callback"]
     token = @@config["hub"]["token"]
-      #   
-      # EM.run {
-      #   http = EM::HttpRequest.new('http://localhost:8080').post(:body => {'hub.callback' => callback, 
-      #                                   'hub.topic' => origin_feed, 
-      #                                   'hub.verify' => 'sync',
-      #                                   'hub.mode' => 'subscribe',                                
-      #                                   'hub.verify_token' => token})
-      #                                   
-      #   http.errback { p 'Error while trying to subscribe'; EM.stop }
-      #   http.callback {
-      #     p http.response_header.status
-      #     p http.response_header
-      #     p http.response
-      # 
-      #   }
-      # }
-      # 
-      body "Success"
+        
+      EM.run {
+        http = EM::HttpRequest.new('http://localhost:8080').post(:body => {'hub.callback' => callback, 
+                                        'hub.topic' => origin_feed, 
+                                        'hub.verify' => 'sync',
+                                        'hub.mode' => 'subscribe',                                
+                                        'hub.verify_token' => token})
+                                        
+        http.errback { p 'Error while trying to subscribe'; EM.stop }
+        http.callback {
+          p http.response_header.status
+          p http.response_header
+          p http.response
+      
+        }
+      }
+      
   end
   
   apost '/callback' do
@@ -62,7 +61,7 @@ class Sync < Sinatra::Base
 
      EM.run {
            http = EM::HttpRequest.new('http://oldblog.pommetab.com/wp-app.php/posts').post(
-           :head => {'authorization' => ['rmenage', '*'],"Content-Type" => "application/atom+xml"}, 
+           :head => {'authorization' => ['username', '*'],"Content-Type" => "application/atom+xml"}, 
            :body => newest_entry.to_xml)
 
            http.errback { p 'Error while pushing atom'; EM.stop }
