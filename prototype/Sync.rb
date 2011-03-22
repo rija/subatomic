@@ -62,7 +62,7 @@ class Sync < Sinatra::Base
 
      EM.run {
            http = EM::HttpRequest.new('http://oldblog.pommetab.com/wp-app.php/posts').post(
-           :head => {'authorization' => ['rmenage', 'P4p0t5ur5p'],"Content-Type" => "application/atom+xml"}, 
+           :head => {'authorization' => ['rmenage', '*'],"Content-Type" => "application/atom+xml"}, 
            :body => newest_entry.to_xml)
 
            http.errback { p 'Error while pushing atom'; EM.stop }
