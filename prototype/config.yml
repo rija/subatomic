@@ -1,12 +1,12 @@
 destination:
     type: wordpress
-    host: oldblog.pommetab.com
-    user: rmenage
-    pasword: P4p0t3ur5p
+    host: yourblog
+    user: yourname
+    pasword: *****
 source:
     feed: http://pommetab.com/feed/atom/
 hub:
     host: http://localhost:8080
-    token: 4937!thjg
+    token: dummy
     callback: http://localhost:3000/callback
     
