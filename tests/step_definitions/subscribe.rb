@@ -18,27 +18,24 @@ And /^a hub is loaded$/ do
 end
 
 When /^subscribe is called$/ do
-  @response = RestClient.get 'http://localhost:3000/subscribe'
+  begin
+    @response = RestClient.get 'http://localhost:3000/subscribe'
+  rescue Exception => e
+    @response = e
+  end
 end
 
-Then /^hub returns Success response and subatomic return Success response header$/ do
-  #page.driver.status_code.should eql(200)
+Then /^subatomic return Success response header$/ do
   @response.code.should eql(200)
 end
 
 
-
-When /^the connection to the hub hangs$/ do
-  visit('http://localhost:3000/subscribe')
-end
-
-
 Then /^subatomic returns Server Error response header$/ do
-  page.driver.status_code.should eql(500)
+  @response.kind_of?(RestClient::InternalServerError).should be_true
 end
 
 After do
-  hub_process =`ps -ef | grep python2.5 | grep -v grep | cut -f6 -d' '`
+  hub_process =`ps -o pid -o command | grep python2.5  | grep pubsubhubbub | grep -v grep | cut -f2 -d' '`
   if hub_process =~ /\d+/
     system "kill #{hub_process}"
   end
