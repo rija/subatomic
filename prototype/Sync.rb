@@ -31,23 +31,32 @@ class Sync < Sinatra::Base
         
       EM.run {
         http = EM::HttpRequest.new('http://localhost:8080').post(:body => {'hub.callback' => callback, 
-                                        'hub.topic' => origin_feed, 
-                                        'hub.verify' => 'sync',
-                                        'hub.mode' => 'subscribe',                                
-                                        'hub.verify_token' => token})
-                                        
-        http.errback { p 'Error while trying to subscribe'; EM.stop }
-        http.callback {
-          p http.response_header.status
-          p http.response_header
-          p http.response
-      
-        }
+                                           'hub.topic' => origin_feed, 
+                                           'hub.verify' => 'sync',
+                                           'hub.mode' => 'subscribe',                                
+                                           'hub.verify_token' => token})
+                                           
+           http.errback { p 'Error while trying to subscribe'; 
+             p http.response_header.status
+             p http.response_header
+             p http.response
+             ahalt 500
+             
+           }
+           http.callback {
+             body
+           }
       }
+      
       
   end
   
   apost '/callback' do
+    
+    username = @@config["destination"]["user"]
+    password = @@config["destination"]["password"]
+    hostname = @@config["destination"]["host"]
+    
     
    # retrieve data
    atomfeed = request.body.read 
@@ -60,8 +69,8 @@ class Sync < Sinatra::Base
    # async publish to blog api
 
      EM.run {
-           http = EM::HttpRequest.new('http://oldblog.pommetab.com/wp-app.php/posts').post(
-           :head => {'authorization' => ['username', '*'],"Content-Type" => "application/atom+xml"}, 
+           http = EM::HttpRequest.new(hostname).post(
+           :head => {'authorization' => [username, password],"Content-Type" => "application/atom+xml"}, 
            :body => newest_entry.to_xml)
 
            http.errback { p 'Error while pushing atom'; EM.stop }
