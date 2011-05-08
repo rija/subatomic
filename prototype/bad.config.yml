@@ -1,0 +1,11 @@
+destination:
+    type: wordpress
+    host: http://bstta.tooth
+    user: xxxxxx
+    pasword: xxxxxxx
+source:
+    feed: http://fluff.poo
+hub:
+    host: http://localhost:8080
+    token: dummy
+    callback: 

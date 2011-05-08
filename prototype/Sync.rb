@@ -5,7 +5,7 @@ require 'em-http'
 class Sync < Sinatra::Base
   register Sinatra::Async
   
-  @@config = YAML.load_file(Dir.pwd+'/prototype/config.yml')
+  @@config = YAML.load_file(File.dirname(__FILE__)+'/config.yml')
   
   
   get '/info' do
@@ -36,15 +36,26 @@ class Sync < Sinatra::Base
                                            'hub.mode' => 'subscribe',                                
                                            'hub.verify_token' => token})
                                            
-           http.errback { p 'Error while trying to subscribe'; 
-             p http.response_header.status
-             p http.response_header
-             p http.response
+           http.errback { p "Error while trying to subscribe: #{http.error}"; 
+             # p "*** start response ***"
+             # p http.response_header.status
+             # p http.response_header
+             # p http.response
+             # p "*** end response ***"
              ahalt 500
              
            }
            http.callback {
-             body
+             # p "** start response **"
+             # p http.response_header.status
+             # p http.response_header
+             # p http.response
+             # p "** end response **"
+             if http.response_header.status == 400
+               ahalt 400
+             else
+               body
+             end
            }
       }
       
